@@ -6,13 +6,13 @@ Get bored of repetitive wallpapers?🫣
 Just call this script! 🫡
 
 
-# What't it ⁉️
+## What't it ⁉️
 
 It's a `Swift` script that calls [Unsplsh](https://www.unsplash.com/) API and receives minimal wallpapers as many as monitors you've connected to your machine!!! 😃
 
-# How to use❓
+## How to use❓
 
-## Per login 🔆
+### Per login 🔆
 Every time that you log into your Mac💻 all of your monitors' backgrounds get updated! ✨
 
 **Instruction:** 🗺
@@ -24,19 +24,24 @@ Every time that you log into your Mac💻 all of your monitors' backgrounds get 
 
 https://user-images.githubusercontent.com/28094207/170821832-07d6917f-d81d-4b82-aec1-2fe5f815ea46.mp4
 
-6. Just restart your Mac to see the magic! 🪄
+6. `$ chmod +x /Applications/imager.app`
+7. Just `restart` your Mac💻 to see the magic! 🪄
 
 
-## Terminal 🧑🏻‍💻
-**Manual:** ⌨️
+## Manual ⌨️
+These methods can be used to refresh your monitors' background images in case you don't like them.
+### Terminal 🧑🏻‍💻
 
-Just open `Terminal` and put the following commands.
+After doing the instruction above, you can just open `Terminal` and put the following commands.
 
 ```
 $ cd Documents
 $ swift imager.swift
 ```
-Magic applied on your monitors! 🪄
+###App 🖥
+Just click on `imager` app in `/Applications`
+
+
 
 ## Contribution ✅
 **Discussion** and **pull requests** are welcomed 💖.
