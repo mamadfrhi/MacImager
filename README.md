@@ -39,7 +39,8 @@ After doing the instruction above, you can just open `Terminal` and execute the 
 $ cd Documents
 $ swift imager.swift
 ```
-###App 🖥
+### App 🖥
+
 Just click on `imager` app in `/Applications`
 
 
