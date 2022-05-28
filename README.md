@@ -42,5 +42,5 @@ Magic applied on your monitors! 🪄
 **Discussion** and **pull requests** are welcomed 💖.
 Just clone the whole of the project.
 
-The, you can easily work on the script and test it in Xcode.
+Then, you can easily work on the script and test it in Xcode.
 The project is [here](https://github.com/mamadfrhi/MacImager/tree/main/MacImagerProject).
