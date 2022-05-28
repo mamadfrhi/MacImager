@@ -15,8 +15,11 @@ It's a swift script which calls [Unsplsh](unsplash.com) API an receives minimal 
 ## Per login
 1. [Download](https://github.com/mamadfrhi/MacImager/blob/main/MacImagerApp/imager.zip) the app which has been created using the script.
 2. Follow the video 👇🏼
+https://user-images.githubusercontent.com/28094207/170821797-5dd6dcf3-b34d-4d54-a21d-cc35a38610c0.mp4
 
 ## Terminal
+
+
 
 
 ## Contribution 
