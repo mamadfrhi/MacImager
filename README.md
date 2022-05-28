@@ -36,7 +36,7 @@ Just open `Terminal` and put the following commands.
 $ cd Documents
 $ swift imager.swift
 ```
-> Magic applied on your monitors! 🪄
+Magic applied on your monitors! 🪄
 
 ## Contribution ✅
 **Discussion** and **pull requests** are welcomed 💖.
