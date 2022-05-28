@@ -24,7 +24,8 @@ Every time that you log into your Mac💻 all of your monitors' backgrounds get 
 
 https://user-images.githubusercontent.com/28094207/170821832-07d6917f-d81d-4b82-aec1-2fe5f815ea46.mp4
 
-6. Run this command in Terminal `$ chmod +x /Applications/imager.app`
+6. Run this command in Terminal
+`$ chmod +x /Applications/imager.app`
 8. Just `restart` your Mac💻 to see the magic! 🪄
 
 
@@ -32,7 +33,7 @@ https://user-images.githubusercontent.com/28094207/170821832-07d6917f-d81d-4b82-
 These methods can be used to refresh your monitors' background images in case you don't like them.
 ### Terminal 🧑🏻‍💻
 
-After doing the instruction above, you can just open `Terminal` and put the following commands.
+After doing the instruction above, you can just open `Terminal` and execute the following commands.
 
 ```
 $ cd Documents
