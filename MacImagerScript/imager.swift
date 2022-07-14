@@ -45,11 +45,11 @@ enum Orientation : String {
     case landscape = "landscape"
     case portrait = "portrait"
 }
-private func makeURLRequest(screenSize: CGSize, orientation: Orientation) -> URLRequest {
+private func makeURLRequest(screenSize: CGSize, orientation: Orientation, imageTopic: String) -> URLRequest {
     let clientID = "eSG6DfH3BRBdhKHLi5-MMY8CWQjTpfAhcHyOMBY4G-Y"
     var urlString = "https://api.unsplash.com/photos/random?" + "client_id=" + clientID
     let parameters = [
-        ["query" : "light"],
+        ["query" : imageTopic],
         ["w" : "\(screenSize.width)"],
         ["h" : "\(screenSize.height)"],
         ["orientation" : orientation.rawValue]
@@ -93,7 +93,7 @@ private func updateDesktop() {
 }
 
 // 2
-private func downloadNewWallpapers() {
+private func downloadNewWallpapers(imageTopic: String) {
     for (i, screen) in screens.enumerated() {
         dpg.enter()
         
@@ -106,7 +106,7 @@ private func downloadNewWallpapers() {
         }
         
         // start request
-        let urlReq = makeURLRequest(screenSize: size, orientation: orientation)
+        let urlReq = makeURLRequest(screenSize: size, orientation: orientation, imageTopic: imageTopic)
         URLSession.shared.dataTask(with: urlReq) { (data, response, error) in
             if let jsonData = try? JSONDecoder().decode(image.self, from: data!),
                let rawImageURL = jsonData.urls["raw"],
@@ -133,17 +133,18 @@ private func downloadNewWallpapers() {
 }
 
 // 1
-private func requestDownload() {
+private func requestDownload(imageTopic: String) {
     checkInternet()
     if internetConnected {
-        downloadNewWallpapers()
+        downloadNewWallpapers(imageTopic: imageTopic)
     } else {
         DispatchQueue.global().asyncAfter(deadline: .now() + 60) {
-            requestDownload()
+            requestDownload(imageTopic: imageTopic)
         }
     }
 }
 
 // 0
-requestDownload()
+let globalImageTopic = "minimal"
+requestDownload(imageTopic: globalImageTopic)
 generalSemaphore.wait()
