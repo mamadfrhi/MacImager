@@ -69,7 +69,6 @@ private func makeImageURL(with index: Int) -> URL {
 }
 private func checkInternet() {
     let monitor = NWPathMonitor()
-    
     monitor.pathUpdateHandler = { path in
         if path.status == .satisfied {
             internetConnected = true
@@ -132,8 +131,6 @@ private func downloadNewWallpapers() {
         updateDesktop()
     }
 }
-
-
 
 // 1
 private func requestDownload() {
