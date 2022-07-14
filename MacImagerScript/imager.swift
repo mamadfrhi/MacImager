@@ -39,16 +39,19 @@ var internetConnected = false
 
 // MARK: - FUNCTIONS
 // MARK: NETWORK
-private func makeURLRequest() -> URLRequest {
+enum Orientation : String {
+    case landscape = "landscape"
+    case portrait = "portrait"
+}
+private func makeURLRequest(screenSize: CGSize, orientation: Orientation) -> URLRequest {
     let clientID = "eSG6DfH3BRBdhKHLi5-MMY8CWQjTpfAhcHyOMBY4G-Y"
     var urlString = "https://api.unsplash.com/photos/random?" + "client_id=" + clientID
     let parameters = [
-        ["query" : "minimal"],
-        ["w" : "1680"],
-        ["h" : "1050"],
-        ["orientation" : "landscape"]
+        ["query" : "light"],
+        ["w" : "\(screenSize.width)"],
+        ["h" : "\(screenSize.height)"],
+        ["orientation" : orientation.rawValue]
     ]
-
     for parameter in parameters {
         let key = parameter.keys.first!
         let value = parameter.values.first!
@@ -89,9 +92,16 @@ private func updateDesktop() {
 
 // 1
 private func downloadNewWallpapers() {
-    for i in 0 ..< screens.count {
+    for (i, screen) in screens.enumerated() {
         dpg.enter()
-        let urlReq = makeURLRequest()
+        
+        let frame = screen.frame
+        let size = CGSize(width: frame.width, height: frame.height)
+        var orientation : Orientation = .landscape
+        if size.height > size.width { // the screen is portrait
+            orientation = .portrait
+        }
+        let urlReq = makeURLRequest(screenSize: size, orientation: orientation)
         URLSession.shared.dataTask(with: urlReq) { (data, response, error) in
             if let jsonData = try? JSONDecoder().decode(image.self, from: data!),
                let rawImageURL = jsonData.urls["raw"],
@@ -118,7 +128,7 @@ private func downloadNewWallpapers() {
 
 
 
-// 0
+// 1
 private func requestDownload() {
     checkInternet()
     if internetConnected {
@@ -130,6 +140,6 @@ private func requestDownload() {
     }
 }
 
+// 0
 requestDownload()
-
 generalSemaphore.wait()
