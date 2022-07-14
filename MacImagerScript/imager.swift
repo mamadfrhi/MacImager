@@ -7,8 +7,9 @@
 
 import Foundation
 import AppKit
+import Network
 
-
+// MARK: COMMAND HELPER
 func shell(_ command: String) -> String {
     let task = Process()
     let pipe = Pipe()
@@ -26,25 +27,32 @@ func shell(_ command: String) -> String {
     return output
 }
 
+// MARK: MODEL
 struct image : Decodable {
     let urls: [String : URL]
 }
 
-let sema = DispatchSemaphore(value: 0)
+// MARK: - PROPERTIES
+let generalSemaphore = DispatchSemaphore(value: 0)
 var docDirStr = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents/").absoluteString
 let screens = NSScreen.screens
 let dpg = DispatchGroup()
 
-private func makeURLRequest() -> URLRequest {
+// MARK: - FUNCTIONS
+// MARK: NETWORK HELPERS
+enum Orientation : String {
+    case landscape = "landscape"
+    case portrait = "portrait"
+}
+private func makeURLRequest(screenSize: CGSize, orientation: Orientation, imageTopic: String) -> URLRequest {
     let clientID = "eSG6DfH3BRBdhKHLi5-MMY8CWQjTpfAhcHyOMBY4G-Y"
     var urlString = "https://api.unsplash.com/photos/random?" + "client_id=" + clientID
     let parameters = [
-        ["query" : "minimal"],
-        ["w" : "1680"],
-        ["h" : "1050"],
-        ["orientation" : "landscape"]
+        ["query" : imageTopic],
+        ["w" : "\(screenSize.width)"],
+        ["h" : "\(screenSize.height)"],
+        ["orientation" : orientation.rawValue]
     ]
-
     for parameter in parameters {
         let key = parameter.keys.first!
         let value = parameter.values.first!
@@ -58,15 +66,52 @@ private func makeImageURL(with index: Int) -> URL {
     let imageURLStr = docDirStr + "/" + "desktop-image-\(index).jpeg"
     return URL(string: imageURLStr)!
 }
-private func downloadNewWallpapers() {
-    
+private func checkInternet(internet: @escaping (Bool) -> Void) {
+    let monitor = NWPathMonitor()
+    monitor.pathUpdateHandler = { path in
+        if path.status == .satisfied {
+            internet(true)
+        } else {
+            internet(false)
+        }
+    }
+    monitor.start(queue: DispatchQueue.global())
+}
+
+// MARK: - CONTROLLER
+// 3
+private func updateDesktop() {
     for i in 0 ..< screens.count {
+        let imageURL = makeImageURL(with: i)
+        let screen = NSScreen.screens[i]
+        try? NSWorkspace.shared.setDesktopImageURL(imageURL, for: screen, options: [:])
+        print("Monitor \(i) set!")
+    }
+    
+    let _ = shell("killall Dock")
+    print("All done!")
+    generalSemaphore.signal()
+}
+
+// 2
+private func downloadNewWallpapers(imageTopic: String) {
+    for (i, screen) in screens.enumerated() {
         dpg.enter()
-        let urlReq = makeURLRequest()
+        
+        // extract screen feature
+        let frame = screen.frame
+        let size = CGSize(width: frame.width, height: frame.height)
+        var orientation : Orientation = .landscape
+        if size.height > size.width { // the screen is portrait
+            orientation = .portrait
+        }
+        
+        // start request
+        let urlReq = makeURLRequest(screenSize: size, orientation: orientation, imageTopic: imageTopic)
         URLSession.shared.dataTask(with: urlReq) { (data, response, error) in
             if let jsonData = try? JSONDecoder().decode(image.self, from: data!),
                let rawImageURL = jsonData.urls["raw"],
-               let imageData = try? Data(contentsOf: rawImageURL){
+               let imageData = try? Data(contentsOf: rawImageURL) {
                 let imageURL = makeImageURL(with: i)
                 if let _ = try? imageData.write(to: imageURL) {
                     dpg.leave()
@@ -79,7 +124,8 @@ private func downloadNewWallpapers() {
                 print("Error while download and decoding JSON file!")
                 dpg.leave()
             }
-        }.resume()
+        }
+        .resume()
     }
     
     dpg.notify(queue: .global()) {
@@ -87,18 +133,32 @@ private func downloadNewWallpapers() {
     }
 }
 
-private func updateDesktop() {
-    for i in 0 ..< screens.count {
-        let imageURL = makeImageURL(with: i)
-        let screen = NSScreen.screens[i]
-        try? NSWorkspace.shared.setDesktopImageURL(imageURL, for: screen, options: [:])
-        print("Monitor \(i) set!")
+// 1
+private func requestDownload(imageTopic: String) {
+    // PROBLEM: if decrease .now() + 60 to .now() + 5
+    // and net will be off and it calls the current function 3 times
+    // it'll download 4 images for each monitor
+    checkInternet { net in
+        if net {
+            downloadNewWallpapers(imageTopic: imageTopic)
+        } else {
+            print("NET IS OFFF")
+            DispatchQueue.global().asyncAfter(deadline: .now() + 60) {
+                requestDownload(imageTopic: imageTopic)
+            }
+        }
     }
-    
-    let _ = shell("killall Dock")
-    sema.signal()
-    print("All done!")
 }
 
-downloadNewWallpapers()
-sema.wait()
+// 0
+let defaultImageTopic = "minimal"
+let arguments = CommandLine.arguments
+if arguments.count > 1 && arguments[1].count > 0 { // the first argument is always name of the script file
+    let imageTopic = CommandLine.arguments[1]
+    print("I'm gonna receive ", imageTopic)
+    requestDownload(imageTopic: imageTopic)
+} else {
+    print("I'm gonna receive ", defaultImageTopic)
+    requestDownload(imageTopic: defaultImageTopic)
+}
+generalSemaphore.wait()
