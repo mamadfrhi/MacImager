@@ -7,7 +7,7 @@
 
 import Foundation
 import AppKit
-
+import Network
 
 func shell(_ command: String) -> String {
     let task = Process()
@@ -35,6 +35,7 @@ let generalSemaphore = DispatchSemaphore(value: 0)
 var docDirStr = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents/").absoluteString
 let screens = NSScreen.screens
 let dpg = DispatchGroup()
+var internetConnected = false
 
 // MARK: - FUNCTIONS
 // MARK: NETWORK
@@ -61,6 +62,32 @@ private func makeImageURL(with index: Int) -> URL {
     let imageURLStr = docDirStr + "/" + "desktop-image-\(index).jpeg"
     return URL(string: imageURLStr)!
 }
+private func checkInternet() {
+    let monitor = NWPathMonitor()
+    
+    monitor.pathUpdateHandler = { path in
+        if path.status == .satisfied {
+            internetConnected = true
+        }
+    }
+    monitor.start(queue: DispatchQueue.global())
+}
+
+// 2
+private func updateDesktop() {
+    for i in 0 ..< screens.count {
+        let imageURL = makeImageURL(with: i)
+        let screen = NSScreen.screens[i]
+        try? NSWorkspace.shared.setDesktopImageURL(imageURL, for: screen, options: [:])
+        print("Monitor \(i) set!")
+    }
+    
+    let _ = shell("killall Dock")
+    print("All done!")
+    generalSemaphore.signal()
+}
+
+// 1
 private func downloadNewWallpapers() {
     for i in 0 ..< screens.count {
         dpg.enter()
@@ -89,18 +116,20 @@ private func downloadNewWallpapers() {
     }
 }
 
-private func updateDesktop() {
-    for i in 0 ..< screens.count {
-        let imageURL = makeImageURL(with: i)
-        let screen = NSScreen.screens[i]
-        try? NSWorkspace.shared.setDesktopImageURL(imageURL, for: screen, options: [:])
-        print("Monitor \(i) set!")
+
+
+// 0
+private func requestDownload() {
+    checkInternet()
+    if internetConnected {
+        downloadNewWallpapers()
+    } else {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 60) {
+            requestDownload()
+        }
     }
-    
-    let _ = shell("killall Dock")
-    sema.signal()
-    print("All done!")
 }
 
-downloadNewWallpapers()
-sema.wait()
+requestDownload()
+
+generalSemaphore.wait()
