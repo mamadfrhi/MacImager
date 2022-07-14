@@ -8,7 +8,7 @@ Just call this script! 🫡
 
 ## What't it ⁉️
 
-It's a `Swift` script that calls [Unsplsh](https://www.unsplash.com/) API and receives minimal wallpapers as many as monitors you've connected to your machine!!! 😃
+It's a `Swift` script that calls [Unsplsh](https://www.unsplash.com/) API and receives **minimal** (by default or what you're interested) wallpapers as many as monitors you've connected to your machine!!! 😃
 
 ## How to use❓
 
