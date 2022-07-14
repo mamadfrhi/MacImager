@@ -151,6 +151,14 @@ private func requestDownload(imageTopic: String) {
 }
 
 // 0
-let globalImageTopic = "minimal"
-requestDownload(imageTopic: globalImageTopic)
+let defaultImageTopic = "minimal"
+let arguments = CommandLine.arguments
+if arguments.count > 1 && arguments[1].count > 0 { // the first argument is always name of the script file
+    let imageTopic = CommandLine.arguments[1]
+    print("I'm gonna receive ", imageTopic)
+    requestDownload(imageTopic: imageTopic)
+} else {
+    print("I'm gonna receive ", defaultImageTopic)
+    requestDownload(imageTopic: defaultImageTopic)
+}
 generalSemaphore.wait()
