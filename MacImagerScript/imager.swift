@@ -30,11 +30,14 @@ struct image : Decodable {
     let urls: [String : URL]
 }
 
-let sema = DispatchSemaphore(value: 0)
+// MARK: - PROPERTIES
+let generalSemaphore = DispatchSemaphore(value: 0)
 var docDirStr = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents/").absoluteString
 let screens = NSScreen.screens
 let dpg = DispatchGroup()
 
+// MARK: - FUNCTIONS
+// MARK: NETWORK
 private func makeURLRequest() -> URLRequest {
     let clientID = "eSG6DfH3BRBdhKHLi5-MMY8CWQjTpfAhcHyOMBY4G-Y"
     var urlString = "https://api.unsplash.com/photos/random?" + "client_id=" + clientID
@@ -59,14 +62,13 @@ private func makeImageURL(with index: Int) -> URL {
     return URL(string: imageURLStr)!
 }
 private func downloadNewWallpapers() {
-    
     for i in 0 ..< screens.count {
         dpg.enter()
         let urlReq = makeURLRequest()
         URLSession.shared.dataTask(with: urlReq) { (data, response, error) in
             if let jsonData = try? JSONDecoder().decode(image.self, from: data!),
                let rawImageURL = jsonData.urls["raw"],
-               let imageData = try? Data(contentsOf: rawImageURL){
+               let imageData = try? Data(contentsOf: rawImageURL) {
                 let imageURL = makeImageURL(with: i)
                 if let _ = try? imageData.write(to: imageURL) {
                     dpg.leave()
