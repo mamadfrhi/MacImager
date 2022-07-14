@@ -76,7 +76,7 @@ private func checkInternet() {
     monitor.start(queue: DispatchQueue.global())
 }
 
-// 2
+// 3
 private func updateDesktop() {
     for i in 0 ..< screens.count {
         let imageURL = makeImageURL(with: i)
@@ -90,17 +90,20 @@ private func updateDesktop() {
     generalSemaphore.signal()
 }
 
-// 1
+// 2
 private func downloadNewWallpapers() {
     for (i, screen) in screens.enumerated() {
         dpg.enter()
         
+        // extract screen feature
         let frame = screen.frame
         let size = CGSize(width: frame.width, height: frame.height)
         var orientation : Orientation = .landscape
         if size.height > size.width { // the screen is portrait
             orientation = .portrait
         }
+        
+        // start request
         let urlReq = makeURLRequest(screenSize: size, orientation: orientation)
         URLSession.shared.dataTask(with: urlReq) { (data, response, error) in
             if let jsonData = try? JSONDecoder().decode(image.self, from: data!),
@@ -118,7 +121,8 @@ private func downloadNewWallpapers() {
                 print("Error while download and decoding JSON file!")
                 dpg.leave()
             }
-        }.resume()
+        }
+        .resume()
     }
     
     dpg.notify(queue: .global()) {
