@@ -37,7 +37,6 @@ let generalSemaphore = DispatchSemaphore(value: 0)
 var docDirStr = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents/").absoluteString
 let screens = NSScreen.screens
 let dpg = DispatchGroup()
-var internetConnected = false
 
 // MARK: - FUNCTIONS
 // MARK: NETWORK HELPERS
@@ -67,11 +66,13 @@ private func makeImageURL(with index: Int) -> URL {
     let imageURLStr = docDirStr + "/" + "desktop-image-\(index).jpeg"
     return URL(string: imageURLStr)!
 }
-private func checkInternet() {
+private func checkInternet(internet: @escaping (Bool) -> Void) {
     let monitor = NWPathMonitor()
     monitor.pathUpdateHandler = { path in
         if path.status == .satisfied {
-            internetConnected = true
+            internet(true)
+        } else {
+            internet(false)
         }
     }
     monitor.start(queue: DispatchQueue.global())
@@ -134,12 +135,17 @@ private func downloadNewWallpapers(imageTopic: String) {
 
 // 1
 private func requestDownload(imageTopic: String) {
-    checkInternet()
-    if internetConnected {
-        downloadNewWallpapers(imageTopic: imageTopic)
-    } else {
-        DispatchQueue.global().asyncAfter(deadline: .now() + 60) {
-            requestDownload(imageTopic: imageTopic)
+    // PROBLEM: if decrease .now() + 60 to .now() + 5
+    // and net will be off and it calls the current function 3 times
+    // it'll download 4 images for each monitor
+    checkInternet { net in
+        if net {
+            downloadNewWallpapers(imageTopic: imageTopic)
+        } else {
+            print("NET IS OFFF")
+            DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
+                requestDownload(imageTopic: imageTopic)
+            }
         }
     }
 }
