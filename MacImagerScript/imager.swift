@@ -143,7 +143,7 @@ private func requestDownload(imageTopic: String) {
             downloadNewWallpapers(imageTopic: imageTopic)
         } else {
             print("NET IS OFFF")
-            DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + 60) {
                 requestDownload(imageTopic: imageTopic)
             }
         }
