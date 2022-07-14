@@ -37,8 +37,9 @@ After doing the instruction above, you can just open `Terminal` and execute the 
 
 ```
 $ cd Documents
-$ swift imager.swift
+$ swift imager.swift trees
 ```
+**trees** here is optional. It's topic of the background images that gonna download.
 ### App 🖥
 
 Just click on `imager` app in `/Applications`
