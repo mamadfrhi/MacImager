@@ -9,6 +9,7 @@ import Foundation
 import AppKit
 import Network
 
+// MARK: COMMAND HELPER
 func shell(_ command: String) -> String {
     let task = Process()
     let pipe = Pipe()
@@ -26,6 +27,7 @@ func shell(_ command: String) -> String {
     return output
 }
 
+// MARK: MODEL
 struct image : Decodable {
     let urls: [String : URL]
 }
@@ -38,7 +40,7 @@ let dpg = DispatchGroup()
 var internetConnected = false
 
 // MARK: - FUNCTIONS
-// MARK: NETWORK
+// MARK: NETWORK HELPERS
 enum Orientation : String {
     case landscape = "landscape"
     case portrait = "portrait"
@@ -76,6 +78,7 @@ private func checkInternet() {
     monitor.start(queue: DispatchQueue.global())
 }
 
+// MARK: - CONTROLLER
 // 3
 private func updateDesktop() {
     for i in 0 ..< screens.count {
