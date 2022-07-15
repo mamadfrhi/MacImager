@@ -44,7 +44,9 @@ enum Orientation : String {
     case landscape = "landscape"
     case portrait = "portrait"
 }
-private func makeURLRequest(screenSize: CGSize, orientation: Orientation, imageTopic: String) -> URLRequest {
+private func makeURLRequest(screenSize: CGSize,
+                            orientation: Orientation,
+                            imageTopic: String) -> URLRequest {
     let clientID = "eSG6DfH3BRBdhKHLi5-MMY8CWQjTpfAhcHyOMBY4G-Y"
     var urlString = "https://api.unsplash.com/photos/random?" + "client_id=" + clientID
     let parameters = [
@@ -89,7 +91,7 @@ private func updateDesktop() {
     }
     
     let _ = shell("killall Dock")
-    print("All done!")
+    print("All done! :p")
     generalSemaphore.signal()
 }
 
@@ -115,13 +117,13 @@ private func downloadNewWallpapers(imageTopic: String) {
                 let imageURL = makeImageURL(with: i)
                 if let _ = try? imageData.write(to: imageURL) {
                     dpg.leave()
-                    print("Image has been written!!!")
+                    print("Image \(i) has been written.")
                 } else {
-                    print("Can't write downloaded image on file!")
+                    print("Can't write downloaded image \(i) on file!")
                     dpg.leave()
                 }
             } else {
-                print("Error while download and decoding JSON file!")
+                print("Error while download and decoding JSON file of the image \(i)!")
                 dpg.leave()
             }
         }
@@ -142,7 +144,7 @@ private func requestDownload(imageTopic: String) {
         if net {
             downloadNewWallpapers(imageTopic: imageTopic)
         } else {
-            print("NET IS OFFF")
+            print("Internet Connection isn't connected!")
             DispatchQueue.global().asyncAfter(deadline: .now() + 60) {
                 requestDownload(imageTopic: imageTopic)
             }
@@ -155,10 +157,10 @@ let defaultImageTopic = "minimal"
 let arguments = CommandLine.arguments
 if arguments.count > 1 && arguments[1].count > 0 { // the first argument is always name of the script file
     let imageTopic = CommandLine.arguments[1]
-    print("I'm gonna receive ", imageTopic)
+    print("I'm gonna download ", imageTopic)
     requestDownload(imageTopic: imageTopic)
 } else {
-    print("I'm gonna receive ", defaultImageTopic)
+    print("I'm gonna download ", defaultImageTopic)
     requestDownload(imageTopic: defaultImageTopic)
 }
 generalSemaphore.wait()
